@@ -1,0 +1,49 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: [self-hosted, Windows, X64]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: zulu
+
+      - name: Cache SonarQube scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/scanner
+          key: ${{ runner.os }}-sonar-scanner
+
+      - name: Install SonarScanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path "${{ runner.temp }}/scanner" -Force
+          dotnet tool update dotnet-sonarscanner --tool-path "${{ runner.temp }}/scanner"
+
+      - name: Build and analyze
+        shell: pwsh
+        run: |
+          "${{ runner.temp }}/scanner/dotnet-sonarscanner" begin `
+            /k:"FilipeAlan_MBA-ProjectFive_1a1878a8-e56e-4ce8-b271-38e32edf4698" `
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
+            /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
+
+          dotnet build
+
+          "${{ runner.temp }}/scanner/dotnet-sonarscanner" end `
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
