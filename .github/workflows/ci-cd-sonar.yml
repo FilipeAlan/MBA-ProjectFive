@@ -7,43 +7,71 @@ on:
 
 jobs:
   build:
-    name: Build and analyze
+    name: Build, test and analyze
     runs-on: [self-hosted, Windows, X64]
 
     steps:
+      # 1) Checkout do código
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # 2) JDK para o SonarQube
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: zulu
 
-      - name: Install SonarScanner
+      # 3) Cache do SonarScanner (opcional, só pra ficar mais rápido depois)
+      - name: Cache SonarQube scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}\scanner
+          key: ${{ runner.os }}-sonar-scanner
+
+      # 4) Instala/atualiza o SonarScanner se não tiver no cache
+      - name: Install SonarQube scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         shell: powershell
         run: |
+          New-Item -Path "${{ runner.temp }}\scanner" -ItemType Directory -Force
           dotnet tool update dotnet-sonarscanner --tool-path "${{ runner.temp }}\scanner"
 
-      - name: Build and analyze
+      # 5) Build, Test + Cobertura e Análise no SonarQube
+      - name: Build, test and analyze
         shell: powershell
         run: |
           $scanner = "${{ runner.temp }}\scanner\dotnet-sonarscanner"
 
-          & $scanner begin /k:"FilipeAlan_MBA-ProjectFive_1a1878a8-e56e-4ce8-b271-38e32edf4698" `
+          # BEGIN - inicia análise no SonarQube
+          & $scanner begin `
+            /k:"FilipeAlan_MBA-ProjectFive_1a1878a8-e56e-4ce8-b271-38e32edf4698" `
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
-            /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
+            /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" `
+            /d:sonar.cs.opencover.reportsPaths="**/TestResults/*/coverage.cobertura.xml"
           if ($LASTEXITCODE -ne 0) {
             Write-Host "SonarScanner BEGIN FAILED with code $LASTEXITCODE"
             exit $LASTEXITCODE
           }
 
+          # BUILD
           dotnet build
           if ($LASTEXITCODE -ne 0) {
             Write-Host "BUILD FAILED with code $LASTEXITCODE"
             exit $LASTEXITCODE
           }
 
+          # TESTS + COBERTURA (usa coverlet.collector)
+          dotnet test `
+            --collect:"XPlat Code Coverage" `
+            --results-directory "TestResults"
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "TESTS FAILED with code $LASTEXITCODE"
+            exit $LASTEXITCODE
+          }
+
+          # END - encerra análise no SonarQube
           & $scanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
           exit $LASTEXITCODE
