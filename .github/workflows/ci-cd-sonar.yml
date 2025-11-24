@@ -21,18 +21,9 @@ jobs:
           java-version: 17
           distribution: zulu
 
-      - name: Cache SonarQube scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.temp }}\scanner
-          key: ${{ runner.os }}-sonar-scanner
-
-      - name: Install SonarQube scanner
-        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+      - name: Install SonarScanner
         shell: powershell
         run: |
-          New-Item -Path "${{ runner.temp }}\scanner" -ItemType Directory -Force
           dotnet tool update dotnet-sonarscanner --tool-path "${{ runner.temp }}\scanner"
 
       - name: Build and analyze
