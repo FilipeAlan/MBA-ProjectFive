@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: Build and analyze
-    runs-on: windows-latest
+    runs-on: [self-hosted, Windows, X64]
     
     steps:
       - uses: actions/checkout@v4
