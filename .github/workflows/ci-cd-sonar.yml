@@ -25,25 +25,34 @@ jobs:
         id: cache-sonar-scanner
         uses: actions/cache@v4
         with:
-          path: ${{ runner.temp }}/scanner
+          path: ${{ runner.temp }}\scanner
           key: ${{ runner.os }}-sonar-scanner
 
-      - name: Install SonarScanner
+      - name: Install SonarQube scanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-        shell: pwsh
+        shell: powershell
         run: |
-          New-Item -ItemType Directory -Path "${{ runner.temp }}/scanner" -Force
-          dotnet tool update dotnet-sonarscanner --tool-path "${{ runner.temp }}/scanner"
+          New-Item -Path "${{ runner.temp }}\scanner" -ItemType Directory -Force
+          dotnet tool update dotnet-sonarscanner --tool-path "${{ runner.temp }}\scanner"
 
       - name: Build and analyze
-        shell: pwsh
+        shell: powershell
         run: |
-          "${{ runner.temp }}/scanner/dotnet-sonarscanner" begin `
-            /k:"FilipeAlan_MBA-ProjectFive_1a1878a8-e56e-4ce8-b271-38e32edf4698" `
+          $scanner = "${{ runner.temp }}\scanner\dotnet-sonarscanner"
+
+          & $scanner begin /k:"FilipeAlan_MBA-ProjectFive_1a1878a8-e56e-4ce8-b271-38e32edf4698" `
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
             /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "SonarScanner BEGIN FAILED with code $LASTEXITCODE"
+            exit $LASTEXITCODE
+          }
 
           dotnet build
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "BUILD FAILED with code $LASTEXITCODE"
+            exit $LASTEXITCODE
+          }
 
-          "${{ runner.temp }}/scanner/dotnet-sonarscanner" end `
-            /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          & $scanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          exit $LASTEXITCODE
