@@ -17,7 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # SonarCloud precisa do histórico de git
+          fetch-depth: 0
 
       - name: Instalar .NET 9
         uses: actions/setup-dotnet@v4
@@ -30,8 +30,6 @@ jobs:
       - name: Adicionar scanner ao PATH
         run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
-      # ✅ NÃO expande secrets diretamente no script.
-      # Usa env + variável de ambiente pra evitar o hotspot S7636.
       - name: Iniciar análise SonarCloud
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -41,9 +39,8 @@ jobs:
             /o:"filipealan" \
             /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+            /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml"
 
-      # 🔧 Usa DEBUG pra funcionar com o NSwag (que espera bin/Debug/net9.0)
       - name: Restore
         run: dotnet restore
 
@@ -54,7 +51,7 @@ jobs:
         run: |
           dotnet test --configuration Debug --no-build \
             /p:CollectCoverage=true \
-            /p:CoverletOutput=TestResults/ \
+            /p:CoverletOutput=TestResults/coverage.opencover.xml \
             /p:CoverletOutputFormat=opencover
 
       - name: Finalizar análise SonarCloud
