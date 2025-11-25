@@ -1,6 +1,10 @@
 
 [![CI - Build, Test e SonarCloud](https://github.com/FilipeAlan/MBA-ProjectFive/actions/workflows/ci-cd-sonar.yml/badge.svg)](https://github.com/FilipeAlan/MBA-ProjectFive/actions/workflows/ci-cd-sonar.yml)
 [![.NET](https://img.shields.io/badge/.NET-9.0-blueviolet?style=flat&logo=dotnet)](https://dotnet.microsoft.com/)
+![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=FilipeAlan_MBA-ProjectFive&metric=alert_status)
+![Coverage](https://sonarcloud.io/api/project_badges/measure?project=FilipeAlan_MBA-ProjectFive&metric=coverage)
+![Bugs](https://sonarcloud.io/api/project_badges/measure?project=FilipeAlan_MBA-ProjectFive&metric=bugs)
+
 
 # **PEO - Plataforma de Educação Online (MBA Project Five)**
 
