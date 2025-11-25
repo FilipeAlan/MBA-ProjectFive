@@ -164,13 +164,12 @@ O EF Core cria e popula o banco automaticamente via Seed.
 
 # **Documentação da API**
 
-Documentação completa:
+## Documentação da API
 
-```
-/docs/README.md
-```
+Documentação completa:  
+👉 **[📘 Abrir documentação completa](/docs/README.md)**
 
-Swagger:
+Swagger:  
 
 ```
 https://localhost:<porta>/swagger
