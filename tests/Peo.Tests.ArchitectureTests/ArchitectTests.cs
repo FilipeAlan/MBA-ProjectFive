@@ -64,6 +64,8 @@ public class ArchitectTests
             "MediatR",
             "FluentValidation",
             "Peo.Identity.Domain",
+            "Coverlet.Core",
+            "Coverlet.Core.Instrumentation",
             "Peo.Core",
             "Peo.Faturamento.Domain",
             "Peo.GestaoConteudo.Domain",
