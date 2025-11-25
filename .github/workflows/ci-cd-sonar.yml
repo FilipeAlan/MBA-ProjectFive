@@ -7,16 +7,17 @@ on:
   pull_request:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
-  build:
+  build-and-analyze:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # SonarCloud precisa do histórico de git
+          fetch-depth: 0  # SonarCloud precisa do histórico de git
 
       - name: Instalar .NET 9
         uses: actions/setup-dotnet@v4
@@ -29,24 +30,29 @@ jobs:
       - name: Adicionar scanner ao PATH
         run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
+      # ✅ NÃO expande secrets diretamente no script.
+      # Usa env + variável de ambiente pra evitar o hotspot S7636.
       - name: Iniciar análise SonarCloud
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           dotnet sonarscanner begin \
             /k:"FilipeAlan_MBA-ProjectFive" \
             /o:"filipealan" \
-            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 
+      # 🔧 Usa DEBUG pra funcionar com o NSwag (que espera bin/Debug/net9.0)
       - name: Restore
         run: dotnet restore
 
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
+      - name: Build (Debug)
+        run: dotnet build --configuration Debug --no-restore
 
-      - name: Testes com cobertura
+      - name: Testes com cobertura (Debug)
         run: |
-          dotnet test --configuration Release --no-build \
+          dotnet test --configuration Debug --no-build \
             /p:CollectCoverage=true \
             /p:CoverletOutput=TestResults/ \
             /p:CoverletOutputFormat=opencover
@@ -54,4 +60,4 @@ jobs:
       - name: Finalizar análise SonarCloud
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
+        run: dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"

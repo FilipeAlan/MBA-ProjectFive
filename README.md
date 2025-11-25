@@ -1,101 +1,233 @@
+
+[![CI - Build, Test e SonarCloud](https://github.com/FilipeAlan/MBA-ProjectFive/actions/workflows/ci-sonarcloud.yml/badge.svg)](https://github.com/FilipeAlan/MBA-ProjectFive/actions/workflows/ci-sonarcloud.yml)
 [![.NET](https://github.com/FilipeAlan/MBA-ProjectFive/actions/workflows/dotnet.yml/badge.svg)](https://github.com/FilipeAlan/MBA-ProjectFive/actions/workflows/dotnet.yml)
 
-# **PEO - Plataforma de Educação Online**
+# **PEO - Plataforma de Educação Online (MBA Project Five)**
 
 ## **Apresentação**
 
-Bem-vindo ao repositório do projeto **Peo**. Este projeto é uma entrega do MBA DevXpert Full Stack .NET e é referente ao terceiro módulo do MBA Desenvolvedor.IO.
+Bem-vindo ao repositório do projeto **PEO (Plataforma de Educação Online)**.  
+Este projeto é uma entrega do **MBA DevXpert Full Stack .NET** (Desenvolvedor.IO) e nasceu no terceiro módulo, sendo evoluído no **quinto módulo** para incorporar práticas de **DevOps, CI/CD, Docker e Kubernetes**.
 
-O objetivo principal é desenvolver uma plataforma educacional online com múltiplos bounded contexts (BC), aplicando DDD, TDD, CQRS e padrões arquiteturais para gestão eficiente de conteúdos educacionais, alunos e processos financeiros. 
+O objetivo principal é desenvolver uma **plataforma educacional online** com múltiplos bounded contexts (BC), aplicando:
 
+- DDD  
+- TDD  
+- CQRS  
+- Padrões arquiteturais modernos  
+- Boas práticas de **qualidade de código** e **entrega contínua**
 
-### **Autores**
+---
+
+### **Autor**
 - **Filipe Alan Elias**
+
+---
 
 ## **Proposta do Projeto**
 
 O projeto consiste em:
 
-- **API RESTful:** Exposição dos endpoints necessários para os casos de uso.
+- **APIs RESTful:** Exposição dos endpoints necessários para os casos de uso.
 - **Autenticação e Autorização:** Implementação de controle de acesso, diferenciando administradores e alunos.
 - **Acesso a Dados:** Implementação de acesso ao banco de dados através de ORM.
+- **Integração com DevOps:** Pipelines automatizados, análise de código, containerização e orquestração.
+
+---
 
 ## **Tecnologias Utilizadas**
 
-- **Linguagem de Programação:** C#
-- **Frameworks:**
-  - ASP.NET Core MVC
-  - ASP.NET Core Web API
-  - Entity Framework Core
-- **Banco de Dados:** SQL Server / SQLite
-- **Autenticação e Autorização:**
-  - ASP.NET Core Identity
-  - JWT (JSON Web Token) para autenticação na API
-- **Documentação da API:** Swagger
+### **Linguagem e Frameworks**
+- **C#**
+- **ASP.NET Core Web API**
+- **ASP.NET Core MVC** (quando aplicável)
+- **Entity Framework Core**
+
+### **Banco de Dados**
+- **SQL Server**
+- **SQLite** (para testes e desenvolvimento)
+
+### **Autenticação e Autorização**
+- **ASP.NET Core Identity**
+- **JWT (JSON Web Token)**
+
+### **Documentação**
+- **Swagger / OpenAPI**
+
+### **DevOps / Infra**
+- **GitHub Actions — CI/CD**
+- **SonarCloud — Análise Estática**
+- **Docker**
+- **Docker Hub**
+- **Kubernetes (Kind / Minikube)**
+- **docker-compose**
+
+---
 
 ## **Estrutura do Projeto**
 
-A estrutura do projeto é organizada da seguinte forma:
+```
+src/                  Código-fonte dos microsserviços
+tests/                Testes automatizados (unidade e integração)
+k8s/                  Manifests Kubernetes (Deployments, Services, etc.)
+docs/                 Documentação detalhada do projeto
+README.md             Documentação principal
+FEEDBACK.md           Feedbacks do instrutor (não editar)
+DEVELOPMENT.md        Notas adicionais do desenvolvimento
+docker-compose.yml    Ambiente completo para desenvolvimento
+```
 
-- src: códigos-fonte da solução  
-- tests: testes de integração e de unidade.
-- docs: [documentação do projeto](./docs/README.md) e requisitos
-	
-- README.md: Arquivo de Documentação do Projeto
-- FEEDBACK.md: Arquivo para Consolidação dos Feedbacks
-- DEVELOPMENT.md: Notas de apoio para o desenvolvimento
-- .gitignore: Arquivo de Ignoração do Git
-- .gitattributes: Atributos do Git
-- .editorconfig: Preferências de Estilo de Código
+---
 
-## **Como Executar o Projeto**
+# **Como Executar o Projeto**
 
-### **Pré-requisitos**
+## **Pré-requisitos**
 
-- .NET SDK 9.0 ou superior
+- .NET SDK **9.0**
+- Docker Desktop
 - SQL Server ou SQLite
-- Visual Studio 2022 ou superior (ou qualquer IDE de sua preferência)
+- Visual Studio 2022 / VS Code / Rider
 - Git
 
-### **Passos para Execução**
+---
 
-1. **Clone o Repositório:**
-   - `git clone https://github.com/jonataspc/MBA-Peo-microservices.git`
-   - `cd MBA-Peo`
+## **1️⃣ Clonar o Repositório**
 
-2. **Configuração do Banco de Dados:**
-   - No arquivo `\src\Peo.Web.Api\appsettings.json`, configure a string de conexão do SQL Server.
-   - Rode o projeto para que a configuração do Seed crie o banco e popule com os dados básicos
+```bash
+git clone https://github.com/FilipeAlan/MBA-ProjectFive.git
+cd MBA-ProjectFive
+```
 
+---
 
-3. **Executar a API:**
-   - `cd src\Peo.Web.Api`
-   - `dotnet run --launch-profile "https"`
-   - Acesse a documentação da API em: https://localhost:7113/
+## **2️⃣ Configuração do Banco de Dados**
 
-## **Instruções de Configuração**
+No arquivo:
 
-- **JWT para API:** As chaves de configuração do JWT estão no `\src\Peo.Web.Api\appsettings.json`.
-- **Migrações do Banco de Dados:** As migrações são gerenciadas pelo Entity Framework Core. Não é necessário aplicar manualmente devido a configuração do seed de dados. 
+```
+src/Peo.Web.Api/appsettings.json
+```
 
-## **Documentação da API**
+Configure a connection string do **SQL Server**.
 
-A documentação da API está disponível através do Swagger. Após iniciar a API, acesse a documentação em https://localhost:7113/
+Ao executar a API pela primeira vez, o **Seed** criará a base e populará dados básicos.
 
-## **Documentação do projeto**
-Uma documentação extensiva pode ser obtida [aqui](./docs/README.md).
+---
 
+## **3️⃣ Executar a API (modo local)**
 
-## **Code coverage e CI**
-A cobertura de código pode ser gerada manualmente/localmente através do script `\scripts\run-tests-with-coverage.ps1` (que utiliza dotCover) e pode ser visualizada no caminho `\scripts\report.html`. 
+```bash
+cd src/Peo.Web.Api
+dotnet run --launch-profile "https"
+```
 
-No repositório GitHub a action de compilação executa a compilação e os testes, além de gerar o relatório de cobertura de código e armazena-lo como artefato, que pode ser obtido: 
-- Acesse a aba "Actions" do repositório.
-- Escolha o último workflow executado.
-- Na seção Artifacts, baixar o arquivo ZIP, contendo o relatório em HTML.
+Acesse a documentação da API:
 
-## **Avaliação**
+```
+https://localhost:7113/swagger
+```
 
-- Este projeto é parte de um curso acadêmico e não aceita contribuições externas. 
-- Para feedbacks ou dúvidas utilize o recurso de Issues
-- O arquivo `FEEDBACK.md` é um resumo das avaliações do instrutor e deverá ser modificado apenas por ele.
+---
+
+# **Execução via Docker Compose (DevOps / Módulo 5)**
+
+Para subir o ambiente completo:
+
+```bash
+docker-compose up --build
+```
+
+O docker-compose inicia:
+
+- Banco de dados  
+- Auth API  
+- Conteúdo API  
+- Alunos API  
+- Pagamentos API  
+- BFF (Backend For Frontend)  
+
+---
+
+# **Configurações Importantes**
+
+### 🔐 JWT  
+As chaves ficam em:
+
+```
+src/<Serviço>/appsettings.json
+```
+
+### 🧩 Migrações
+O EF Core cria e popula o banco automaticamente via Seed.
+
+---
+
+# **Documentação da API**
+
+Documentação completa:
+
+```
+/docs/README.md
+```
+
+Swagger:
+
+```
+https://localhost:<porta>/swagger
+```
+
+---
+
+# **Testes, Coverage e CI/CD**
+
+Este repositório utiliza **dois pipelines**:
+
+### ✔ `dotnet.yml` — Pipeline antigo  
+- Build  
+- Testes  
+- Relatório dotCover  
+- Upload como artefato  
+
+### ✔ `ci-sonarcloud.yml` — Pipeline novo (DevOps/Módulo 5)  
+- Build .NET 9  
+- Testes com cobertura  
+- Análise no **SonarCloud**  
+- Quality Gate  
+- Integração contínua automática  
+
+Cobertura manual:
+
+```
+scripts/run-tests-with-coverage.ps1
+```
+
+Relatório:
+
+```
+scripts/report.html
+```
+
+SonarCloud:
+
+👉 https://sonarcloud.io/project/overview?id=FilipeAlan_MBA-ProjectFive
+
+---
+
+# **Avaliação do Projeto**
+
+Este projeto faz parte do MBA DevXpert e será avaliado considerando:
+
+- Funcionalidades DevOps  
+- Qualidade do Código  
+- Kubernetes  
+- Observabilidade  
+- Documentação  
+- Resolução de Feedbacks  
+
+O arquivo **FEEDBACK.md** será atualizado pelo instrutor.
+
+---
+
+# **📬 Contato**
+
+Para dúvidas ou sugestões, utilize as **Issues do GitHub**.
