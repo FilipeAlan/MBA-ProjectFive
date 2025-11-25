@@ -1,77 +1,57 @@
-name: Build
+name: CI - Build, Test e SonarCloud
 
 on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build:
-    name: Build, test and analyze
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: ubuntu-latest
 
     steps:
-      # 1) Checkout do código
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0   # SonarCloud precisa do histórico de git
 
-      # 2) JDK para o SonarQube
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - name: Instalar .NET 9
+        uses: actions/setup-dotnet@v4
         with:
-          java-version: 17
-          distribution: zulu
+          dotnet-version: "9.0.x"
 
-      # 3) Cache do SonarScanner (opcional, só pra ficar mais rápido depois)
-      - name: Cache SonarQube scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.temp }}\scanner
-          key: ${{ runner.os }}-sonar-scanner
+      - name: Instalar SonarCloud Scanner
+        run: dotnet tool install --global dotnet-sonarscanner
 
-      # 4) Instala/atualiza o SonarScanner se não tiver no cache
-      - name: Install SonarQube scanner
-        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-        shell: powershell
+      - name: Adicionar scanner ao PATH
+        run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Iniciar análise SonarCloud
         run: |
-          New-Item -Path "${{ runner.temp }}\scanner" -ItemType Directory -Force
-          dotnet tool update dotnet-sonarscanner --tool-path "${{ runner.temp }}\scanner"
+          dotnet sonarscanner begin \
+            /k:"FilipeAlan_MBA-ProjectFive" \
+            /o:"filipealan" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 
-      # 5) Build, Test + Cobertura e Análise no SonarQube
-      - name: Build, test and analyze
-        shell: powershell
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Testes com cobertura
         run: |
-          $scanner = "${{ runner.temp }}\scanner\dotnet-sonarscanner"
+          dotnet test --configuration Release --no-build \
+            /p:CollectCoverage=true \
+            /p:CoverletOutput=TestResults/ \
+            /p:CoverletOutputFormat=opencover
 
-          # BEGIN - inicia análise no SonarQube
-          & $scanner begin `
-            /k:"FilipeAlan_MBA-ProjectFive_1a1878a8-e56e-4ce8-b271-38e32edf4698" `
-            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
-            /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" `
-            /d:sonar.cs.opencover.reportsPaths="**/TestResults/*/coverage.cobertura.xml"
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "SonarScanner BEGIN FAILED with code $LASTEXITCODE"
-            exit $LASTEXITCODE
-          }
-
-          # BUILD
-          dotnet build
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "BUILD FAILED with code $LASTEXITCODE"
-            exit $LASTEXITCODE
-          }
-
-          # TESTS + COBERTURA (usa coverlet.collector)
-          dotnet test `
-            --collect:"XPlat Code Coverage" `
-            --results-directory "TestResults"
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "TESTS FAILED with code $LASTEXITCODE"
-            exit $LASTEXITCODE
-          }
-
-          # END - encerra análise no SonarQube
-          & $scanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-          exit $LASTEXITCODE
+      - name: Finalizar análise SonarCloud
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
