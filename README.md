@@ -1,6 +1,6 @@
 
-[![CI - Build, Test e SonarCloud](https://github.com/FilipeAlan/MBA-ProjectFive/actions/workflows/ci-sonarcloud.yml/badge.svg)](https://github.com/FilipeAlan/MBA-ProjectFive/actions/workflows/ci-sonarcloud.yml)
-[![.NET](https://github.com/FilipeAlan/MBA-ProjectFive/actions/workflows/dotnet.yml/badge.svg)](https://github.com/FilipeAlan/MBA-ProjectFive/actions/workflows/dotnet.yml)
+[![CI - Build, Test e SonarCloud](https://github.com/FilipeAlan/MBA-ProjectFive/actions/workflows/ci-cd-sonar.yml/badge.svg)](https://github.com/FilipeAlan/MBA-ProjectFive/actions/workflows/ci-cd-sonar.yml)
+[![.NET](https://img.shields.io/badge/.NET-9.0-blueviolet?style=flat&logo=dotnet)](https://dotnet.microsoft.com/)
 
 # **PEO - Plataforma de Educação Online (MBA Project Five)**
 
