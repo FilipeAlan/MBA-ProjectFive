@@ -1,29 +1,37 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
+# Imagem base para runtime
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 8081
 
-
-# This stage is used to build the service project
+# Imagem para build
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-ARG BUILD_CONFIGURATION=Release
+ARG BUILD_CONFIGURATION=Debug
 WORKDIR /src
-COPY ["src/Peo.Web.Bff/Peo.Web.Bff.csproj", "src/Peo.Web.Bff/"]
-RUN dotnet restore "./src/Peo.Web.Bff/Peo.Web.Bff.csproj"
-COPY . .
-WORKDIR "/src/src/Peo.Web.Bff"
-RUN dotnet build "./Peo.Web.Bff.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# This stage is used to publish the service project to be copied to the final stage
+# Copia os csproj para restaurar dependências
+COPY ["src/Peo.Web.Bff/Peo.Web.Bff.csproj", "src/Peo.Web.Bff/"]
+COPY ["src/Peo.Core/Peo.Core.csproj", "src/Peo.Core/"]
+COPY ["src/Peo.Core.Web/Peo.Core.Web.csproj", "src/Peo.Core.Web/"]
+COPY ["src/Peo.ServiceDefaults/Peo.ServiceDefaults.csproj", "src/Peo.ServiceDefaults/"]
+
+# Restore do BFF (puxa o resto em cascata)
+RUN dotnet restore "src/Peo.Web.Bff/Peo.Web.Bff.csproj"
+
+# Copia o resto do código
+COPY . .
+
+# Entra na pasta do projeto do BFF
+WORKDIR "/src/src/Peo.Web.Bff"
+
+RUN dotnet build "Peo.Web.Bff.csproj" -c $BUILD_CONFIGURATION
+
+# Stage de publish (Release)
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Peo.Web.Bff.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+WORKDIR "/src/src/Peo.Web.Bff"
+RUN dotnet publish "Peo.Web.Bff.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
+# Stage final
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .

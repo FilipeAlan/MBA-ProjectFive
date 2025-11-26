@@ -1,0 +1,116 @@
+version: "3.9"
+
+volumes:
+  peo-data:
+  rabbitmq-data:
+
+services:
+  rabbitmq:
+    image: rabbitmq:4.1-management
+    container_name: peo-messaging
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+  peo-identity-api:
+    build:
+      context: .
+      dockerfile: src/Peo.Identity.WebApi/Dockerfile
+    container_name: peo-identity-api
+    depends_on:
+      - rabbitmq
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+ 
+      ConnectionStrings__DefaultConnection: "Data Source=../data/identity.db;"
+
+      ConnectionStrings__messaging: "amqp://guest:guest@rabbitmq:5672"
+    ports:
+      - "5010:8080"
+    volumes:
+      - peo-data:/data
+
+  peo-gestao-alunos-api:
+    build:
+      context: .
+      dockerfile: src/Peo.GestaoAlunos.WebApi/Dockerfile
+    container_name: peo-gestao-alunos-api
+    depends_on:
+      - rabbitmq
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Data Source=../data/gestao-alunos.db;"
+      ConnectionStrings__messaging: "amqp://guest:guest@rabbitmq:5672"
+    ports:
+      - "5020:8080"
+    volumes:
+      - peo-data:/data
+
+  peo-gestao-conteudo-api:
+    build:
+      context: .
+      dockerfile: src/Peo.GestaoConteudo.WebApi/Dockerfile
+    container_name: peo-gestao-conteudo-api
+    depends_on:
+      - rabbitmq
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Data Source=../data/gestao-conteudo.db;"
+      ConnectionStrings__messaging: "amqp://guest:guest@rabbitmq:5672"
+    ports:
+      - "5030:8080"
+    volumes:
+      - peo-data:/data
+
+  peo-faturamento-api:
+    build:
+      context: .
+      dockerfile: src/Peo.Faturamento.WebApi/Dockerfile
+    container_name: peo-faturamento-api
+    depends_on:
+      - rabbitmq
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Data Source=../data/faturamento.db;"
+      ConnectionStrings__messaging: "amqp://guest:guest@rabbitmq:5672"
+    ports:
+      - "5040:8080"
+    volumes:
+      - peo-data:/data
+
+  peo-bff:
+    build:
+      context: .
+      dockerfile: src/Peo.Web.Bff/Dockerfile
+    container_name: peo-web-bff
+    depends_on:
+      - peo-identity-api
+      - peo-gestao-alunos-api
+      - peo-gestao-conteudo-api
+      - peo-faturamento-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+
+      Endpoints__IdentityWebApi: "http://peo-identity-api:8080"
+      Endpoints__GestaoAlunosWebApi: "http://peo-gestao-alunos-api:8080"
+      Endpoints__GestaoConteudo: "http://peo-gestao-conteudo-api:8080"
+      Endpoints__Faturamento: "http://peo-faturamento-api:8080"
+     
+      ConnectionStrings__messaging: "amqp://guest:guest@rabbitmq:5672"
+    ports:
+      - "5000:8080"
+
+  peo-frontend:
+    build:
+      context: .
+      dockerfile: src/Peo.Web.Spa/Dockerfile
+    container_name: peo-frontend
+    depends_on:
+      - peo-bff
+    ports:
+      - "5100:80"
