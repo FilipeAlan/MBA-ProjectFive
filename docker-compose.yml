@@ -96,11 +96,11 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
 
-      Endpoints__IdentityWebApi: "http://peo-identity-api:8080"
-      Endpoints__GestaoAlunosWebApi: "http://peo-gestao-alunos-api:8080"
+      Endpoints__Identity: "http://peo-identity-api:8080"
+      Endpoints__GestaoAlunos: "http://peo-gestao-alunos-api:8080"
       Endpoints__GestaoConteudo: "http://peo-gestao-conteudo-api:8080"
       Endpoints__Faturamento: "http://peo-faturamento-api:8080"
-     
+
       ConnectionStrings__messaging: "amqp://guest:guest@rabbitmq:5672"
     ports:
       - "5000:8080"

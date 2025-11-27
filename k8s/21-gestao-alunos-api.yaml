@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peo-gestao-alunos-api
+  namespace: peo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: peo-gestao-alunos-api
+  template:
+    metadata:
+      labels:
+        app: peo-gestao-alunos-api
+    spec:
+      containers:
+        - name: peo-gestao-alunos-api
+          image: mba-projectfive-peo-gestao-alunos-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Development"
+            - name: ConnectionStrings__DefaultConnection
+              value: "Data Source=../data/gestao-alunos.db;"
+            - name: ConnectionStrings__messaging
+              value: "amqp://guest:guest@rabbitmq:5672"
+          volumeMounts:
+            - name: peo-data
+              mountPath: /data          
+      volumes:
+        - name: peo-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: peo-gestao-alunos-api
+  namespace: peo
+spec:
+  selector:
+    app: peo-gestao-alunos-api
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

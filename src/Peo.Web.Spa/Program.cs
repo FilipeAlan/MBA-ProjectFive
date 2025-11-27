@@ -32,8 +32,39 @@ builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthStateProvider>();
 
 builder.Services.AddScoped<AuthHeaderHandler>();
 
-var apiBase = builder.Configuration["ApiBaseUrl"]
-              ?? "https://localhost:7276/v1/";
+var configuredApiBase = builder.Configuration["ApiBaseUrl"];
+string apiBase;
+
+// URL de onde a SPA está rodando (ex: http://localhost:5100/)
+var spaBaseUri = new Uri(builder.HostEnvironment.BaseAddress);
+
+if (!string.IsNullOrWhiteSpace(configuredApiBase))
+{
+    apiBase = configuredApiBase;
+
+    // Se a SPA estiver rodando em http://localhost:5100
+    // e o appsettings ainda estiver apontando pro 7276,
+    // sobrescreve para usar o BFF na 5000
+    if (spaBaseUri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
+        && spaBaseUri.Port == 5100
+        && configuredApiBase.Contains("localhost:7276", StringComparison.OrdinalIgnoreCase))
+    {
+        apiBase = "http://localhost:5000";
+    }
+}
+else
+{
+    // fallback: se um dia tirarem do appsettings, mantém compatibilidade
+    if (spaBaseUri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
+        && spaBaseUri.Port == 5100)
+    {
+        apiBase = "http://localhost:5000";
+    }
+    else
+    {
+        apiBase = "https://localhost:7276/v1/";
+    }
+}
 
 builder.Services.AddHttpClient("Api")
                 .AddHttpMessageHandler<AuthHeaderHandler>();

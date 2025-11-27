@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peo-frontend
+  namespace: peo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: peo-frontend
+  template:
+    metadata:
+      labels:
+        app: peo-frontend
+    spec:
+      containers:
+        - name: peo-frontend
+          image: mba-projectfive-peo-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          # se sua SPA ler baseUrl via env/config,
+          # aqui é o lugar de passar:
+          # env:
+          #   - name: ApiBaseUrl
+          #     value: "http://peo-web-bff:8080"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: peo-frontend
+  namespace: peo
+spec:
+  selector:
+    app: peo-frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  type: ClusterIP
