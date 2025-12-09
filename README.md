@@ -1,102 +1,104 @@
+# 📘 **PEO - Plataforma de Educação Online (MBA Project Five)**
 
-[![CI - Build, Test e SonarCloud](https://github.com/FilipeAlan/MBA-ProjectFive/actions/workflows/ci-cd-sonar.yml/badge.svg)](https://github.com/FilipeAlan/MBA-ProjectFive/actions/workflows/ci-cd-sonar.yml)
-[![.NET](https://img.shields.io/badge/.NET-9.0-blueviolet?style=flat&logo=dotnet)](https://dotnet.microsoft.com/)
-![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=FilipeAlan_MBA-ProjectFive&metric=alert_status)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=FilipeAlan_MBA-ProjectFive&metric=coverage)](https://sonarcloud.io/api/project_badges/measure?project=FilipeAlan_MBA-ProjectFive&metric=coverage
-)
+[![CI - Build, Test e SonarCloud](https://github.com/FilipeAlan/MBA-ProjectFive/actions/workflows/ci-cd-sonar.yml/badge.svg)](https://github.com/FilipeAlan/MBA-ProjectFive/actions/workflows/ci-cd-sonar.yml)  
+![.NET](https://img.shields.io/badge/.NET-9.0-blueviolet?style=flat&logo=dotnet)  
+![Coverage](https://sonarcloud.io/api/project_badges/measure?project=FilipeAlan_MBA-ProjectFive&metric=coverage)  
 ![Bugs](https://sonarcloud.io/api/project_badges/measure?project=FilipeAlan_MBA-ProjectFive&metric=bugs)
 
+---
 
-# **PEO - Plataforma de Educação Online (MBA Project Five)**
+# **Apresentação**
 
-## **Apresentação**
+Bem-vindo ao repositório do projeto **PEO (Plataforma de Educação Online)**.
 
-Bem-vindo ao repositório do projeto **PEO (Plataforma de Educação Online)**.  
-Este projeto é uma entrega do **MBA DevXpert Full Stack .NET** (Desenvolvedor.IO) e nasceu no terceiro módulo, sendo evoluído no **quinto módulo** para incorporar práticas de **DevOps, CI/CD, Docker e Kubernetes**.
+Este projeto é uma entrega do **MBA DevXpert Full Stack .NET – Desenvolvedor.IO**, iniciado no **Módulo 3** e evoluído no **Módulo 5** com foco em:
 
-O objetivo principal é desenvolver uma **plataforma educacional online** com múltiplos bounded contexts (BC), aplicando:
-
-- DDD  
-- TDD  
-- CQRS  
-- Padrões arquiteturais modernos  
-- Boas práticas de **qualidade de código** e **entrega contínua**
+- DevOps  
+- CI/CD  
+- Docker  
+- Kubernetes  
+- Observabilidade  
+- Boas práticas de engenharia de software  
 
 ---
 
-### **Autor**
-- **Filipe Alan Elias**
+# 👤 **Autor**
+**Filipe Alan Elias**
 
 ---
 
-## **Proposta do Projeto**
+# 🎯 **Proposta do Projeto**
 
-O projeto consiste em:
+Uma plataforma educacional moderna composta por múltiplos **microsserviços**, organizados por **bounded contexts**, contemplando:
 
-- **APIs RESTful:** Exposição dos endpoints necessários para os casos de uso.
-- **Autenticação e Autorização:** Implementação de controle de acesso, diferenciando administradores e alunos.
-- **Acesso a Dados:** Implementação de acesso ao banco de dados através de ORM.
-- **Integração com DevOps:** Pipelines automatizados, análise de código, containerização e orquestração.
+- APIs RESTful  
+- Autenticação e autorização (Identity + JWT)  
+- Regras de negócio separadas por contexto  
+- Integração entre serviços via BFF  
+- Persistência com EF Core  
+- Pipelines automatizados  
+- Orquestração em Kubernetes  
 
 ---
 
-## **Tecnologias Utilizadas**
+# 🛠 **Tecnologias Utilizadas**
 
-### **Linguagem e Frameworks**
-- **C#**
-- **ASP.NET Core Web API**
-- **ASP.NET Core MVC** (quando aplicável)
-- **Entity Framework Core**
+### **Backend**
+- C# / .NET 9  
+- ASP.NET Core Web API  
+- ASP.NET Core MVC  
+- Entity Framework Core  
+- FluentValidation  
+
+### **Frontend**
+- SPA (JavaScript)
 
 ### **Banco de Dados**
-- **SQL Server**
-- **SQLite** (para testes e desenvolvimento)
+- SQL Server  
+- SQLite (testes)
 
-### **Autenticação e Autorização**
-- **ASP.NET Core Identity**
-- **JWT (JSON Web Token)**
+### **Autenticação**
+- ASP.NET Core Identity  
+- JWT  
 
-### **Documentação**
-- **Swagger / OpenAPI**
-
-### **DevOps / Infra**
-- **GitHub Actions — CI/CD**
-- **SonarCloud — Análise Estática**
-- **Docker**
-- **Docker Hub**
-- **Kubernetes (Kind / Minikube)**
-- **docker-compose**
+### **Infra & DevOps**
+- Docker  
+- Docker Hub  
+- docker-compose  
+- Kubernetes (Docker Desktop)  
+- GitHub Actions (CI/CD)  
+- SonarCloud  
 
 ---
 
-## **Estrutura do Projeto**
+# 📂 **Estrutura do Projeto**
 
 ```
 src/                  Código-fonte dos microsserviços
-tests/                Testes automatizados (unidade e integração)
-k8s/                  Manifests Kubernetes (Deployments, Services, etc.)
-docs/                 Documentação detalhada do projeto
+tests/                Testes automatizados
+k8s/                  Manifestos Kubernetes
+docs/                 Documentação adicional
 README.md             Documentação principal
-FEEDBACK.md           Feedbacks do instrutor (não editar)
-DEVELOPMENT.md        Notas adicionais do desenvolvimento
-docker-compose.yml    Ambiente completo para desenvolvimento
+FEEDBACK.md           Feedback do instrutor
+DEVELOPMENT.md        Notas e decisões do desenvolvimento
+docker-compose.yml    Ambiente completo via Docker Compose
 ```
 
 ---
 
-# **Como Executar o Projeto**
+# 🚀 **Como Executar o Projeto**
 
-## **Pré-requisitos**
+## 1️⃣ Pré-requisitos
 
-- .NET SDK **9.0**
-- Docker Desktop
-- SQL Server ou SQLite
-- Visual Studio 2022 / VS Code / Rider
-- Git
+- .NET SDK 9  
+- Docker Desktop  
+- SQL Server ou SQLite  
+- Git  
+- VS Code / Visual Studio / Rider  
 
 ---
 
-## **1️⃣ Clonar o Repositório**
+## 2️⃣ Clonar o Repositório
 
 ```bash
 git clone https://github.com/FilipeAlan/MBA-ProjectFive.git
@@ -105,133 +107,244 @@ cd MBA-ProjectFive
 
 ---
 
-## **2️⃣ Configuração do Banco de Dados**
+## 3️⃣ Configuração do Banco de Dados
 
 No arquivo:
-
-```
-src/Peo.Web.Api/appsettings.json
-```
-
-Configure a connection string do **SQL Server**.
-
-Ao executar a API pela primeira vez, o **Seed** criará a base e populará dados básicos.
-
----
-
-## **3️⃣ Executar a API (modo local)**
-
-```bash
-cd src/Peo.Web.Api
-dotnet run --launch-profile "https"
-```
-
-Acesse a documentação da API:
-
-```
-https://localhost:7113/swagger
-```
-
----
-
-# **Execução via Docker Compose (DevOps / Módulo 5)**
-
-Para subir o ambiente completo:
-
-```bash
-docker-compose up --build
-```
-
-O docker-compose inicia:
-
-- Banco de dados  
-- Auth API  
-- Conteúdo API  
-- Alunos API  
-- Pagamentos API  
-- BFF (Backend For Frontend)  
-
----
-
-# **Configurações Importantes**
-
-### 🔐 JWT  
-As chaves ficam em:
 
 ```
 src/<Serviço>/appsettings.json
 ```
 
-### 🧩 Migrações
-O EF Core cria e popula o banco automaticamente via Seed.
+Defina a connection string do SQL Server.  
+As bases são criadas automaticamente via **Seed**.
 
 ---
 
-# **Documentação da API**
+## 4️⃣ Subir o Ambiente com Docker Compose
 
-## Documentação da API
+```bash
+docker-compose up --build
+```
 
-Documentação completa:  
-👉 **[📘 Abrir documentação completa](/docs/README.md)**
+Isso iniciará:
 
-Swagger:  
+- Identity API  
+- Conteúdo API  
+- Alunos API  
+- Faturamento API  
+- BFF  
+- Frontend  
+- Banco de Dados  
+
+---
+
+# 🧠 Documentação das APIs
+
+Acesse o Swagger de qualquer API:
 
 ```
-https://localhost:<porta>/swagger
+https://localhost:<PORTA>/swagger
+```
+
+Documentação adicional está em:
+
+```
+/docs
 ```
 
 ---
 
-# **Testes, Coverage e CI/CD**
+# ☸️ Execução no Kubernetes
 
-Este repositório utiliza **dois pipelines**:
+Os manifestos Kubernetes estão em:
 
-### ✔ `dotnet.yml` — Pipeline antigo  
-- Build  
-- Testes  
-- Relatório dotCover  
-- Upload como artefato  
+```
+k8s/
+```
 
-### ✔ `ci-sonarcloud.yml` — Pipeline novo (DevOps/Módulo 5)  
-- Build .NET 9  
+## Criar namespace
+
+```bash
+kubectl apply -f k8s/00-namespace.yaml
+```
+
+## Aplicar todos os recursos
+
+```bash
+kubectl apply -f k8s/
+```
+
+## Verificar pods
+
+```bash
+kubectl get pods -n peo
+```
+
+---
+
+# 🌐 Acessar Serviços no Kubernetes
+
+### Frontend SPA
+```bash
+kubectl port-forward svc/peo-frontend -n peo 5100:80
+```
+Acesse:
+```
+http://localhost:5100
+```
+
+### BFF
+```bash
+kubectl port-forward svc/peo-web-bff -n peo 5000:8080
+```
+
+---
+
+# 🔧 ConfigMaps e Secrets
+
+As configurações são divididas entre:
+
+- **ConfigMaps** → URLs internas, chaves não sensíveis  
+- **Secrets** → connection strings, tokens JWT, dados sigilosos  
+
+Exemplo de uso:
+
+```yaml
+env:
+  - name: IDENTITY_URL
+    valueFrom:
+      configMapKeyRef:
+        name: peo-config
+        key: identityUrl
+```
+
+---
+
+# ❤️‍🩹 Health Checks (Liveness / Readiness)
+
+Todas as APIs fornecem health check interno:
+
+```
+/health
+```
+
+Exemplo do Kubernetes:
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+```
+
+Isso garante que o Kubernetes saiba quando:
+
+- reiniciar um container (liveness)  
+- enviá-lo ou não tráfego (readiness)  
+
+---
+
+# 🔄 CI/CD – Integração Contínua e Entrega Contínua
+
+O projeto possui **dois workflows GitHub Actions**:
+
+## ✔ CI – Build, Test e SonarCloud
+Arquivo:
+```
+.github/workflows/ci-cd-sonar.yml
+```
+
+Executa:
+
+- Restore  
+- Build .NET  
 - Testes com cobertura  
-- Análise no **SonarCloud**  
+- Análise SonarCloud  
 - Quality Gate  
-- Integração contínua automática  
 
-Cobertura manual:
-
+## ✔ CD – Deploy Automático para o Docker Hub
+Arquivo:
 ```
-scripts/run-tests-with-coverage.ps1
-```
-
-Relatório:
-
-```
-scripts/report.html
+.github/workflows/cd-DockerHubDeploy.yml
 ```
 
-SonarCloud:
+Executa:
 
-👉 https://sonarcloud.io/project/overview?id=FilipeAlan_MBA-ProjectFive
+- Build das imagens Docker dos serviços  
+- Login automático no Docker Hub  
+- Push das imagens (`latest`)  
+
+Secrets necessários:
+
+- `DOCKERHUB_USERNAME`  
+- `DOCKERHUB_TOKEN`  
 
 ---
 
-# **Avaliação do Projeto**
+# 🔁 Fluxos Funcionais Validados
 
-Este projeto faz parte do MBA DevXpert e será avaliado considerando:
+Testados integralmente dentro do Kubernetes:
 
-- Funcionalidades DevOps  
-- Qualidade do Código  
-- Kubernetes  
-- Observabilidade  
-- Documentação  
-- Resolução de Feedbacks  
-
-O arquivo **FEEDBACK.md** será atualizado pelo instrutor.
+- Registro de usuário  
+- Autenticação (JWT)  
+- Listagem e matrícula em cursos  
+- Publicação e acesso a conteúdos  
+- Fluxo de pagamentos (mock)  
+- Geração de certificado  
+- Comunicação via BFF para o Frontend SPA  
 
 ---
 
-# **📬 Contato**
+# 🏗 Arquitetura da Solução
 
-Para dúvidas ou sugestões, utilize as **Issues do GitHub**.
+```
+[ Frontend SPA ] → [ BFF ]
+                       ↓
+              ┌────────┼────────┬────────┐
+              │        │        │        │
+      Identity API   Alunos   Conteúdo   Faturamento
+```
+
+- Cada serviço está isolado em **um Deployment**
+- Comunicação interna ocorre por **Services**
+- BFF centraliza toda comunicação com o frontend  
+- Kubernetes gerencia disponibilidade e escalabilidade  
+
+---
+
+# 📊 Observabilidade
+
+- Logs estruturados (ILogger)  
+- Health check endpoints  
+- Detecção automática de falhas via probes  
+
+---
+
+# 📑 Avaliação do Projeto
+
+Critérios atendidos:
+
+- DevOps (CI/CD completo)  
+- Qualidade do código (SonarCloud)  
+- Docker e Kubernetes  
+- Documentação adequada  
+- Feedbacks aplicados  
+- Fluxos funcionais implementados  
+
+O arquivo **FEEDBACK.md** será atualizado pelo instrutor após avaliação.
+
+---
+
+# 📬 Contato
+
+Para dúvidas, sugestões ou melhorias, utilize:
+
+👉 **Issues do GitHub**
+
+---
+
+# 🎉 Obrigado por visitar o projeto!

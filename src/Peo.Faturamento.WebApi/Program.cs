@@ -5,6 +5,7 @@ using Peo.ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
+builder.Services.AddHealthChecks();
 builder.Services.AddDependencies(builder.Configuration, builder.Environment)
                 .AddSwagger("PEO - Faturamento")
                 .SetupWebApi(builder.Configuration)
@@ -19,6 +20,6 @@ app.UseAuthentication();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapEndpoints();
-
+app.MapHealthChecks("/health");
 await app.UseFaturamentoDbMigrationHelperAsync();
 await app.RunAsync();

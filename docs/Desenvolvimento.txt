@@ -1,0 +1,18 @@
+rebuild das imagens Docker 
+
+docker build -f src/Peo.Identity.WebApi/Dockerfile         -t mba-projectfive-peo-identity-api:latest .
+docker build -f src/Peo.GestaoAlunos.WebApi/Dockerfile      -t mba-projectfive-peo-gestao-alunos-api:latest .
+docker build -f src/Peo.GestaoConteudo.WebApi/Dockerfile    -t mba-projectfive-peo-gestao-conteudo-api:latest .
+docker build -f src/Peo.Faturamento.WebApi/Dockerfile       -t mba-projectfive-peo-faturamento-api:latest .
+docker build -f src/Peo.Web.Bff/Dockerfile                  -t mba-projectfive-peo-bff:latest .
+docker build -f src/Peo.Web.Spa/Dockerfile                  -t mba-projectfive-peo-frontend:latest .
+
+reiniciar deployments do kubernetes 
+
+kubectl rollout restart deployment peo-identity-api      -n peo
+kubectl rollout restart deployment peo-gestao-alunos-api -n peo
+kubectl rollout restart deployment peo-gestao-conteudo-api -n peo
+kubectl rollout restart deployment peo-faturamento-api   -n peo
+kubectl rollout restart deployment peo-web-bff           -n peo
+kubectl rollout restart deployment peo-frontend          -n peo
+

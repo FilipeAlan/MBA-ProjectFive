@@ -3,6 +3,7 @@ using Peo.ServiceDefaults;
 using Peo.Web.Bff.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddHealthChecks();
 builder.AddServiceDefaults();
 builder.AddExceptionHandler();
 builder.Services.AddIdentity(builder.Configuration)
@@ -44,5 +45,6 @@ app.AddFaturamentoEndpoints();
 app.AddGestaoConteudoEndpoints();
 app.AddGestaoAlunosEndpoints();
 app.AddHistoricoEndpoints();
+app.MapHealthChecks("/health");
 
 await app.RunAsync();

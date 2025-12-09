@@ -28,7 +28,24 @@ spec:
               value: "amqp://guest:guest@rabbitmq:5672"
           volumeMounts:
             - name: peo-data
-              mountPath: /data          
+              mountPath: /data     
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
       volumes:
         - name: peo-data
           emptyDir: {}
