@@ -1,0 +1,84 @@
+name: CD - Docker Hub Deploy
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login no Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Identity API
+      - name: Build & Push - Identity API
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: src/Peo.Identity.WebApi/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/mba-projectfive-peo-identity-api:latest
+
+      # Gestão de Alunos API
+      - name: Build & Push - Gestao Alunos API
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: src/Peo.GestaoAlunos.WebApi/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/mba-projectfive-peo-gestao-alunos-api:latest
+
+      # Gestão de Conteúdo API
+      - name: Build & Push - Gestao Conteudo API
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: src/Peo.GestaoConteudo.WebApi/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/mba-projectfive-peo-gestao-conteudo-api:latest
+
+      # Faturamento API
+      - name: Build & Push - Faturamento API
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: src/Peo.Faturamento.WebApi/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/mba-projectfive-peo-faturamento-api:latest
+
+      # BFF
+      - name: Build & Push - BFF
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: src/Peo.Web.Bff/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/mba-projectfive-peo-bff:latest
+
+      # Frontend SPA
+      - name: Build & Push - Frontend SPA
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: src/Peo.Web.Spa/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/mba-projectfive-peo-frontend:latest
