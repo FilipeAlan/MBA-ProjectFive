@@ -49,7 +49,7 @@ Uma plataforma educacional moderna composta por múltiplos **microsserviços**, 
 - FluentValidation  
 
 ### **Frontend**
-- SPA (JavaScript)
+- SPA (Blazor+JavaScript)
 
 ### **Banco de Dados**
 - SQL Server  
