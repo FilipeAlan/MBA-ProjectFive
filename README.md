@@ -9,7 +9,7 @@
 
 Bem-vindo ao repositório do projeto **PEO (Plataforma de Educação Online)**.
 
-Este projeto é uma entrega do **MBA DevXpert Full Stack .NET – Desenvolvedor.IO**, iniciado no **Módulo 3** e evoluído no **Módulo 5** com foco em:
+Este projeto é uma entrega do **MBA DevXpert Full Stack .NET – Desenvolvedor.IO**, iniciado no **Módulo 5** e evoluído no **Módulo 5** com foco em:
 
 - DevOps  
 - CI/CD  
