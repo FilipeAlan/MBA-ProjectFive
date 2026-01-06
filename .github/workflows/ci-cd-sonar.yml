@@ -39,7 +39,7 @@ jobs:
             /o:"filipealan" \
             /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml"
+            /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml,**/TestResults/coverage.opencover.xml"
 
       - name: Restore
         run: dotnet restore
@@ -47,10 +47,11 @@ jobs:
       - name: Build (Debug)
         run: dotnet build --configuration Debug --no-restore
 
-      - name: Testes com cobertura (Debug)
+      - name: Testes com cobertura (Debug) - somente *Command.cs
         run: |
           dotnet test --configuration Debug --no-build \
             /p:CollectCoverage=true \
+            /p:IncludeByFile="**/*Command.cs" \
             /p:CoverletOutput=TestResults/coverage.opencover.xml \
             /p:CoverletOutputFormat=opencover
 
