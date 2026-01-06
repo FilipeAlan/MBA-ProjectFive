@@ -12,40 +12,31 @@ on:
 jobs:
   deploy-k8s:
     runs-on: self-hosted
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Instalar kubectl
-        uses: azure/setup-kubectl@v4
-        with:
-          version: "latest"
-
-      - name: Configurar kubeconfig
-        run: |
-          mkdir -p ~/.kube
-          printf '%s' "${{ secrets.KUBE_CONFIG_B64 }}" | base64 -d > ~/.kube/config
-          chmod 600 ~/.kube/config     
+      # (Opcional, mas bom para log)
+      - name: Verificar kubectl
+        run: kubectl version --client
 
       - name: Aplicar Namespace
         run: kubectl apply -f k8s/00-namespace.yaml
 
-      - name: Criar/Atualizar Secrets (sem rodar na mão)
+      - name: Criar/Atualizar Secrets
         env:
           JWT_KEY: ${{ secrets.JWT_KEY }}
           RABBITMQ_USER: ${{ secrets.RABBITMQ_USER }}
           RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
         run: |
-          NAMESPACE="peo"
-
-          kubectl -n "$NAMESPACE" create secret generic peo-jwt-secret \
-            --from-literal=Jwt__Key="$JWT_KEY" \
+          kubectl -n peo create secret generic peo-jwt-secret `
+            --from-literal=Jwt__Key="$env:JWT_KEY" `
             --dry-run=client -o yaml | kubectl apply -f -
 
-          kubectl -n "$NAMESPACE" create secret generic peo-rabbitmq-secret \
-            --from-literal=RABBITMQ_USER="$RABBITMQ_USER" \
-            --from-literal=RABBITMQ_PASSWORD="$RABBITMQ_PASSWORD" \
+          kubectl -n peo create secret generic peo-rabbitmq-secret `
+            --from-literal=RABBITMQ_USER="$env:RABBITMQ_USER" `
+            --from-literal=RABBITMQ_PASSWORD="$env:RABBITMQ_PASSWORD" `
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Deploy Kubernetes (apply em tudo do k8s)
@@ -53,6 +44,5 @@ jobs:
 
       - name: Verificar status (pods e services)
         run: |
-          NAMESPACE="peo"
-          kubectl -n "$NAMESPACE" get pods
-          kubectl -n "$NAMESPACE" get svc
+          kubectl -n peo get pods
+          kubectl -n peo get svc
