@@ -30,16 +30,16 @@ jobs:
       - name: Adicionar scanner ao PATH
         run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
-      - name: Iniciar análise SonarCloud
+            - name: Iniciar análise SonarCloud
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           dotnet sonarscanner begin \
-            /d:sonar.coverage.exclusions="**/Migrations/**,**/*Dto.cs,**/Program.cs"
             /k:"FilipeAlan_MBA-ProjectFive" \
             /o:"filipealan" \
             /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.coverage.exclusions="**/Migrations/**,**/*Dto.cs,**/Program.cs" \
             /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml,**/TestResults/coverage.opencover.xml"
 
       - name: Restore
