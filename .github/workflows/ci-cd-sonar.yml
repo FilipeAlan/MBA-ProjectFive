@@ -30,7 +30,7 @@ jobs:
       - name: Adicionar scanner ao PATH
         run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
-            - name: Iniciar análise SonarCloud
+      - name: Iniciar análise SonarCloud
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
