@@ -4,6 +4,7 @@ using Moq;
 using Peo.Core.Dtos;
 using Peo.Core.Interfaces.Data;
 using Peo.Core.Interfaces.Services;
+using Peo.Core.Messages.IntegrationCommands;
 using Peo.Faturamento.Application.Services;
 using Peo.Faturamento.Domain.Dtos;
 using Peo.Faturamento.Domain.Entities;
@@ -261,5 +262,32 @@ public class PagamentoServiceTests
 
         // Assert
         resultado.Should().BeEmpty();
+    }
+   
+    [Fact]
+    public void Ctor_Deve_atribuir_todos_os_valores()
+    {
+        // arrange
+        var matriculaId = Guid.NewGuid();
+        var valor = 199.90m;
+
+        var cartao = new CartaoCredito(
+            NumeroCartao: "4111111111111111",
+            DataExpiracao: "12/30",
+            Cvv: "123",
+            Nome: "Fulano de Tal"
+        );
+
+        // act
+        var command = new ProcessarPagamentoMatriculaCommand(
+            matriculaId,
+            valor,
+            cartao
+        );
+
+        // assert
+        Assert.Equal(matriculaId, command.MatriculaId);
+        Assert.Equal(valor, command.Valor);
+        Assert.Equal(cartao, command.DadosCartao);
     }
 }
