@@ -1,3 +1,13 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rabbitmq-secrets
+  namespace: peo
+type: Opaque
+stringData:
+  RABBITMQ_DEFAULT_USER: guest
+  RABBITMQ_DEFAULT_PASS: guest
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,22 +24,27 @@ spec:
         app: rabbitmq
     spec:
       containers:
-        - name: rabbitmq
-          image: rabbitmq:4.1-management
-          ports:
-            - containerPort: 5672
-            - containerPort: 15672
-          env:
-            - name: RABBITMQ_DEFAULT_USER
-              value: "guest"
-            - name: RABBITMQ_DEFAULT_PASS
-              value: "guest"
-          volumeMounts:
-            - name: rabbitmq-data
-              mountPath: /var/lib/rabbitmq
-      volumes:
+      - name: rabbitmq
+        image: rabbitmq:4.1-management
+        ports:
+        - containerPort: 5672
+        - containerPort: 15672
+        volumeMounts:
         - name: rabbitmq-data
-          emptyDir: {}
+          mountPath: /var/lib/rabbitmq
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        envFrom:
+        - secretRef:
+            name: rabbitmq-secrets
+      volumes:
+      - name: rabbitmq-data
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
@@ -40,10 +55,10 @@ spec:
   selector:
     app: rabbitmq
   ports:
-    - name: amqp
-      port: 5672
-      targetPort: 5672
-    - name: http
-      port: 15672
-      targetPort: 15672
+  - name: amqp
+    port: 5672
+    targetPort: 5672
+  - name: http
+    port: 15672
+    targetPort: 15672
   type: ClusterIP

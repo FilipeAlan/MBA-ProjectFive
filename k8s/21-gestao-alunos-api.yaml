@@ -1,3 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: peo-gestao-alunos-api-config
+  namespace: peo
+data:
+  ASPNETCORE_ENVIRONMENT: Development
+  ConnectionStrings__DefaultConnection: Data Source=../data/gestao-alunos.db;
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: peo-gestao-alunos-api-secrets
+  namespace: peo
+type: Opaque
+stringData:
+  ConnectionStrings__messaging: amqp://guest:guest@rabbitmq:5672
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,37 +32,41 @@ spec:
         app: peo-gestao-alunos-api
     spec:
       containers:
-        - name: peo-gestao-alunos-api
-          image: mba-projectfive-peo-gestao-alunos-api:latest
-          imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 8080
-          env:
-            - name: ASPNETCORE_ENVIRONMENT
-              value: "Development"
-            - name: ConnectionStrings__DefaultConnection
-              value: "Data Source=../data/gestao-alunos.db;"
-            - name: ConnectionStrings__messaging
-              value: "amqp://guest:guest@rabbitmq:5672"
-          volumeMounts:
-            - name: peo-data
-              mountPath: /data 
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 15
-
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 5
-            periodSeconds: 10    
-      volumes:
+      - name: peo-gestao-alunos-api
+        image: mba-projectfive-peo-gestao-alunos-api:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        volumeMounts:
         - name: peo-data
-          emptyDir: {}
+          mountPath: /data
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        envFrom:
+        - configMapRef:
+            name: peo-gestao-alunos-api-config
+        - secretRef:
+            name: peo-gestao-alunos-api-secrets
+      volumes:
+      - name: peo-data
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
@@ -55,7 +77,7 @@ spec:
   selector:
     app: peo-gestao-alunos-api
   ports:
-    - name: http
-      port: 8080
-      targetPort: 8080
+  - name: http
+    port: 8080
+    targetPort: 8080
   type: ClusterIP

@@ -1,0 +1,60 @@
+name: CD - Deploy Kubernetes
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "k8s/**"
+      - ".github/workflows/cd-k8s-deploy.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy-k8s:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: "latest"
+
+      - name: Configurar kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Aplicar Namespace
+        run: kubectl apply -f k8s/00-namespace.yaml
+
+      - name: Criar/Atualizar Secrets (sem rodar na mão)
+        env:
+          JWT_KEY: ${{ secrets.JWT_KEY }}
+          RABBITMQ_USER: ${{ secrets.RABBITMQ_USER }}
+          RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
+        run: |
+          # Se seu namespace for outro, troque aqui:
+          NAMESPACE="peo"
+
+          # JWT -> mapeia para Jwt:Key no .NET via Jwt__Key
+          kubectl -n "$NAMESPACE" create secret generic peo-jwt-secret \
+            --from-literal=Jwt__Key="$JWT_KEY" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          # RabbitMQ creds
+          kubectl -n "$NAMESPACE" create secret generic peo-rabbitmq-secret \
+            --from-literal=RABBITMQ_USER="$RABBITMQ_USER" \
+            --from-literal=RABBITMQ_PASSWORD="$RABBITMQ_PASSWORD" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy Kubernetes (apply em tudo do k8s)
+        run: kubectl apply -f k8s/
+
+      - name: Verificar status (pods e services)
+        run: |
+          kubectl -n peo get pods
+          kubectl -n peo get svc

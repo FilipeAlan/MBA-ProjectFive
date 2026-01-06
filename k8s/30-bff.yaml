@@ -1,3 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: peo-web-bff-config
+  namespace: peo
+data:
+  ASPNETCORE_ENVIRONMENT: Development
+  Endpoints__Identity: http://peo-identity-api:8080
+  Endpoints__GestaoAlunos: http://peo-gestao-alunos-api:8080
+  Endpoints__GestaoConteudo: http://peo-gestao-conteudo-api:8080
+  Endpoints__Faturamento: http://peo-faturamento-api:8080
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: peo-web-bff-secrets
+  namespace: peo
+type: Opaque
+stringData:
+  ConnectionStrings__messaging: amqp://guest:guest@rabbitmq:5672
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,39 +35,39 @@ spec:
         app: peo-web-bff
     spec:
       containers:
-        - name: peo-web-bff
-          image: mba-projectfive-peo-bff:latest
-          imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 8080
-                  env:
-          - name: ASPNETCORE_ENVIRONMENT
-            value: "Development"
-         
-          - name: Endpoints__Identity
-            value: "http://peo-identity-api:8080"
-          - name: Endpoints__GestaoAlunos
-            value: "http://peo-gestao-alunos-api:8080"
-          - name: Endpoints__GestaoConteudo
-            value: "http://peo-gestao-conteudo-api:8080"
-          - name: Endpoints__Faturamento
-            value: "http://peo-faturamento-api:8080"
-
-          - name: ConnectionStrings__messaging
-            value: "amqp://guest:guest@rabbitmq:5672"
+      - name: peo-web-bff
+        image: mba-projectfive-peo-bff:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: peo-web-bff-config
+        - secretRef:
+            name: peo-web-bff-secrets
         livenessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 15
-
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 5
-            periodSeconds: 10
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 15
+          timeoutSeconds: 2
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 2
+          failureThreshold: 3
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
 ---
 apiVersion: v1
 kind: Service
@@ -57,7 +78,7 @@ spec:
   selector:
     app: peo-web-bff
   ports:
-    - name: http
-      port: 8080
-      targetPort: 8080
+  - name: http
+    port: 8080
+    targetPort: 8080
   type: ClusterIP
