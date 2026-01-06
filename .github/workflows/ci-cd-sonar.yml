@@ -35,6 +35,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           dotnet sonarscanner begin \
+            /d:sonar.coverage.exclusions="**/Migrations/**,**/*Dto.cs,**/Program.cs"
             /k:"FilipeAlan_MBA-ProjectFive" \
             /o:"filipealan" \
             /d:sonar.token="$SONAR_TOKEN" \
