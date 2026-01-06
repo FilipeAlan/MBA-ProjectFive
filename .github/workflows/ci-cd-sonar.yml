@@ -30,7 +30,7 @@ jobs:
       - name: Adicionar scanner ao PATH
         run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
-      - name: Iniciar análise SonarCloud (SOMENTE COMMANDS)
+      - name: Iniciar análise SonarCloud (SOMENTE *Command.cs, EXCETO Command.cs)
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
@@ -40,6 +40,7 @@ jobs:
             /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.inclusions="**/*Command.cs" \
+            /d:sonar.exclusions="**/Command.cs" \
             /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml,**/TestResults/coverage.opencover.xml"
 
       - name: Restore
@@ -48,11 +49,12 @@ jobs:
       - name: Build (Debug)
         run: dotnet build --configuration Debug --no-restore
 
-      - name: Testes com cobertura (Debug) - SOMENTE *Command.cs
+      - name: Testes com cobertura 
         run: |
           dotnet test --configuration Debug --no-build \
             /p:CollectCoverage=true \
             /p:IncludeByFile="**/*Command.cs" \
+            /p:ExcludeByFile="**/Command.cs" \
             /p:CoverletOutput=TestResults/coverage.opencover.xml \
             /p:CoverletOutputFormat=opencover
 
