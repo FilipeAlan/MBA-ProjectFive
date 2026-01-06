@@ -25,7 +25,9 @@ jobs:
       - name: Configurar kubeconfig
         run: |
           mkdir -p ~/.kube
-          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+          cat > ~/.kube/config <<'EOF'
+          ${{ secrets.KUBE_CONFIG }}
+          EOF
           chmod 600 ~/.kube/config
 
       - name: Aplicar Namespace
@@ -37,15 +39,12 @@ jobs:
           RABBITMQ_USER: ${{ secrets.RABBITMQ_USER }}
           RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
         run: |
-          # Se seu namespace for outro, troque aqui:
           NAMESPACE="peo"
 
-          # JWT -> mapeia para Jwt:Key no .NET via Jwt__Key
           kubectl -n "$NAMESPACE" create secret generic peo-jwt-secret \
             --from-literal=Jwt__Key="$JWT_KEY" \
             --dry-run=client -o yaml | kubectl apply -f -
 
-          # RabbitMQ creds
           kubectl -n "$NAMESPACE" create secret generic peo-rabbitmq-secret \
             --from-literal=RABBITMQ_USER="$RABBITMQ_USER" \
             --from-literal=RABBITMQ_PASSWORD="$RABBITMQ_PASSWORD" \
@@ -56,5 +55,6 @@ jobs:
 
       - name: Verificar status (pods e services)
         run: |
-          kubectl -n peo get pods
-          kubectl -n peo get svc
+          NAMESPACE="peo"
+          kubectl -n "$NAMESPACE" get pods
+          kubectl -n "$NAMESPACE" get svc

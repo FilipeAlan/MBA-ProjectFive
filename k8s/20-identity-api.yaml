@@ -4,17 +4,8 @@ metadata:
   name: peo-identity-api-config
   namespace: peo
 data:
-  ASPNETCORE_ENVIRONMENT: Development
-  ConnectionStrings__DefaultConnection: Data Source=../data/identity.db;
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: peo-identity-api-secrets
-  namespace: peo
-type: Opaque
-stringData:
-  ConnectionStrings__messaging: amqp://guest:guest@rabbitmq:5672
+  ASPNETCORE_ENVIRONMENT: "Production"
+  ConnectionStrings__DefaultConnection: "Data Source=/data/identity.db;"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -32,45 +23,49 @@ spec:
         app: peo-identity-api
     spec:
       containers:
-      - name: peo-identity-api
-        image: mba-projectfive-peo-identity-api:latest
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 8080
-        volumeMounts:
-        - name: peo-data
-          mountPath: /data
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 10
-          periodSeconds: 15
-          timeoutSeconds: 2
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 10
-          timeoutSeconds: 2
-          failureThreshold: 3
-        resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 500m
-            memory: 512Mi
-        envFrom:
-        - configMapRef:
-            name: peo-identity-api-config
-        - secretRef:
-            name: peo-identity-api-secrets
+        - name: peo-identity-api
+          image: mba-projectfive-peo-identity-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: peo-identity-api-config
+            - configMapRef:
+                name: peo-jwt-config
+            - secretRef:
+                name: peo-jwt-secret
+            - secretRef:
+                name: peo-rabbitmq-secret
+          env:
+            - name: ConnectionStrings__messaging
+              value: "amqp://$(RABBITMQ_USER):$(RABBITMQ_PASSWORD)@rabbitmq:5672"
+          volumeMounts:
+            - name: peo-data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 20
       volumes:
-      - name: peo-data
-        emptyDir: {}
+        - name: peo-data
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
@@ -81,7 +76,7 @@ spec:
   selector:
     app: peo-identity-api
   ports:
-  - name: http
-    port: 8080
-    targetPort: 8080
+    - name: http
+      port: 8080
+      targetPort: 8080
   type: ClusterIP

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: peo-jwt-config
+  namespace: peo
+data:
+  Jwt__Issuer: "peo"
+  Jwt__Audience: "peo"

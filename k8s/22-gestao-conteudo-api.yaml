@@ -4,17 +4,8 @@ metadata:
   name: peo-gestao-conteudo-api-config
   namespace: peo
 data:
-  ASPNETCORE_ENVIRONMENT: Development
-  ConnectionStrings__DefaultConnection: Data Source=../data/gestao-conteudo.db;
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: peo-gestao-conteudo-api-secrets
-  namespace: peo
-type: Opaque
-stringData:
-  ConnectionStrings__messaging: amqp://guest:guest@rabbitmq:5672
+  ASPNETCORE_ENVIRONMENT: "Production"
+  ConnectionStrings__DefaultConnection: "Data Source=/data/gestao-conteudo.db;"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -32,41 +23,49 @@ spec:
         app: peo-gestao-conteudo-api
     spec:
       containers:
-      - name: peo-gestao-conteudo-api
-        image: mba-projectfive-peo-gestao-conteudo-api:latest
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 8080
-        volumeMounts:
-        - name: peo-data
-          mountPath: /data
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 10
-          periodSeconds: 15
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 500m
-            memory: 512Mi
-        envFrom:
-        - configMapRef:
-            name: peo-gestao-conteudo-api-config
-        - secretRef:
-            name: peo-gestao-conteudo-api-secrets
+        - name: peo-gestao-conteudo-api
+          image: mba-projectfive-peo-gestao-conteudo-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: peo-gestao-conteudo-api-config
+            - configMapRef:
+                name: peo-jwt-config
+            - secretRef:
+                name: peo-jwt-secret
+            - secretRef:
+                name: peo-rabbitmq-secret
+          env:
+            - name: ConnectionStrings__messaging
+              value: "amqp://$(RABBITMQ_USER):$(RABBITMQ_PASSWORD)@rabbitmq:5672"
+          volumeMounts:
+            - name: peo-data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 20
       volumes:
-      - name: peo-data
-        emptyDir: {}
+        - name: peo-data
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
@@ -77,7 +76,7 @@ spec:
   selector:
     app: peo-gestao-conteudo-api
   ports:
-  - name: http
-    port: 8080
-    targetPort: 8080
+    - name: http
+      port: 8080
+      targetPort: 8080
   type: ClusterIP

@@ -1,84 +1,79 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: peo-web-bff-config
+  name: peo-bff-config
   namespace: peo
 data:
-  ASPNETCORE_ENVIRONMENT: Development
-  Endpoints__Identity: http://peo-identity-api:8080
-  Endpoints__GestaoAlunos: http://peo-gestao-alunos-api:8080
-  Endpoints__GestaoConteudo: http://peo-gestao-conteudo-api:8080
-  Endpoints__Faturamento: http://peo-faturamento-api:8080
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: peo-web-bff-secrets
-  namespace: peo
-type: Opaque
-stringData:
-  ConnectionStrings__messaging: amqp://guest:guest@rabbitmq:5672
+  ASPNETCORE_ENVIRONMENT: "Production"
+  Endpoints__Identity: "http://peo-identity-api:8080"
+  Endpoints__GestaoAlunos: "http://peo-gestao-alunos-api:8080"
+  Endpoints__GestaoConteudo: "http://peo-gestao-conteudo-api:8080"
+  Endpoints__Faturamento: "http://peo-faturamento-api:8080"
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: peo-web-bff
+  name: peo-bff
   namespace: peo
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: peo-web-bff
+      app: peo-bff
   template:
     metadata:
       labels:
-        app: peo-web-bff
+        app: peo-bff
     spec:
       containers:
-      - name: peo-web-bff
-        image: mba-projectfive-peo-bff:latest
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 8080
-        envFrom:
-        - configMapRef:
-            name: peo-web-bff-config
-        - secretRef:
-            name: peo-web-bff-secrets
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 10
-          periodSeconds: 15
-          timeoutSeconds: 2
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 10
-          timeoutSeconds: 2
-          failureThreshold: 3
-        resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 500m
-            memory: 512Mi
+        - name: peo-bff
+          image: mba-projectfive-peo-bff:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: peo-bff-config
+            - configMapRef:
+                name: peo-jwt-config
+            - secretRef:
+                name: peo-jwt-secret
+            - secretRef:
+                name: peo-rabbitmq-secret
+          env:
+            - name: ConnectionStrings__messaging
+              value: "amqp://$(RABBITMQ_USER):$(RABBITMQ_PASSWORD)@rabbitmq:5672"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 20
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: peo-web-bff
+  name: peo-bff
   namespace: peo
 spec:
   selector:
-    app: peo-web-bff
+    app: peo-bff
   ports:
-  - name: http
-    port: 8080
-    targetPort: 8080
+    - name: http
+      port: 8080
+      targetPort: 8080
   type: ClusterIP

@@ -4,7 +4,7 @@ metadata:
   name: peo-frontend-config
   namespace: peo
 data:
-  ApiBaseUrl: http://peo-web-bff:8080
+  ApiBaseUrl: "http://peo-bff:8080"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -22,37 +22,34 @@ spec:
         app: peo-frontend
     spec:
       containers:
-      - name: peo-frontend
-        image: mba-projectfive-peo-frontend:latest
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 80
-        resources:
-          requests:
-            cpu: 50m
-            memory: 64Mi
-          limits:
-            cpu: 200m
-            memory: 256Mi
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 10
-          periodSeconds: 10
-          timeoutSeconds: 2
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 10
-          timeoutSeconds: 2
-          failureThreshold: 3
-        envFrom:
-        - configMapRef:
-            name: peo-frontend-config
+        - name: peo-frontend
+          image: mba-projectfive-peo-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: peo-frontend-config
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 20
 ---
 apiVersion: v1
 kind: Service
@@ -63,7 +60,7 @@ spec:
   selector:
     app: peo-frontend
   ports:
-  - name: http
-    port: 80
-    targetPort: 80
+    - name: http
+      port: 80
+      targetPort: 80
   type: ClusterIP
