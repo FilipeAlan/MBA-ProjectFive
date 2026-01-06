@@ -22,12 +22,12 @@ jobs:
         with:
           version: "latest"
 
-      - name: Configurar kubeconfig
+            - name: Configurar kubeconfig
         run: |
           mkdir -p ~/.kube
           cat > ~/.kube/config <<'EOF'
-          ${{ secrets.KUBE_CONFIG }}
-          EOF
+${{ secrets.KUBE_CONFIG }}
+EOF
           chmod 600 ~/.kube/config
 
       - name: Aplicar Namespace
