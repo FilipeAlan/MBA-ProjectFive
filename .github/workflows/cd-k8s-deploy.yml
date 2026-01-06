@@ -26,10 +26,7 @@ jobs:
         run: |
           mkdir -p ~/.kube
           printf '%s' "${{ secrets.KUBE_CONFIG_B64 }}" | base64 -d > ~/.kube/config
-          chmod 600 ~/.kube/config
-
-      - name: Testar cluster
-        run: kubectl get nodes
+          chmod 600 ~/.kube/config     
 
       - name: Aplicar Namespace
         run: kubectl apply -f k8s/00-namespace.yaml
