@@ -25,7 +25,9 @@ jobs:
       - name: Configurar kubeconfig
         run: |
           mkdir -p ~/.kube
-          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+          cat > ~/.kube/config <<'EOF'
+          ${{ secrets.KUBE_CONFIG }}
+          EOF
           chmod 600 ~/.kube/config
 
       - name: Aplicar Namespace
